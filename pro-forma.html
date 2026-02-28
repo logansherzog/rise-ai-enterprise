@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISE AI Enterprise — Year 1 Pro Forma</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-2: #232733;
+            --border: #2e3345;
+            --text: #e4e6ed;
+            --text-muted: #8b8fa3;
+            --accent: #6c63ff;
+            --accent-light: #8b84ff;
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.12);
+            --yellow: #fbbf24;
+            --yellow-dim: rgba(251, 191, 36, 0.12);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2.5rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.35rem;
+        }
+
+        header h1 span { color: var(--accent-light); }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .assumptions {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem 2rem;
+        }
+
+        .assumptions h3 {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .assumptions .item {
+            font-size: 0.85rem;
+        }
+
+        .assumptions .item strong {
+            color: var(--accent-light);
+        }
+
+        /* Toggle */
+        .toggle-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .toggle-btn:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        thead th {
+            background: var(--surface-2);
+            padding: 0.6rem 0.75rem;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        thead th:first-child {
+            text-align: left;
+            min-width: 160px;
+        }
+
+        tbody td {
+            padding: 0.5rem 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            font-variant-numeric: tabular-nums;
+        }
+
+        tbody td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        tr.section-header td {
+            background: var(--surface-2);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-light);
+            padding: 0.6rem 0.75rem;
+        }
+
+        tr.subtotal td {
+            border-top: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        tr.total td {
+            border-top: 2px solid var(--accent);
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.65rem 0.75rem;
+        }
+
+        tr.cumulative td {
+            font-weight: 600;
+            color: var(--accent-light);
+            border-top: 1px solid var(--border);
+        }
+
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
+        .zero { color: var(--text-muted); }
+
+        .pre-revenue td {
+            color: var(--text-muted);
+        }
+
+        /* Summary cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            text-align: center;
+        }
+
+        .summary-card .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .summary-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .summary-card .sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .note {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            table { font-size: 0.72rem; }
+            thead th, tbody td { padding: 0.4rem 0.5rem; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RISE <span>AI Enterprise</span> — Year 1 Pro Forma</h1>
+            <p>Monthly income statement &middot; April 2026 – June 2027</p>
+        </header>
+
+        <div class="assumptions">
+            <h3>Key Assumptions</h3>
+            <div class="item"><strong>$2,500/mo</strong> per client</div>
+            <div class="item"><strong>15 students</strong> &middot; $500/semester stipend</div>
+            <div class="item"><strong>6-week</strong> sales cycle (sales start April)</div>
+            <div class="item"><strong>Operations begin</strong> August 2026</div>
+            <div class="item"><strong>9 clients</strong> base case (see ramp below)</div>
+            <div class="item"><strong>$220k</strong> grant replacement target</div>
+        </div>
+
+        <div class="toggle-row">
+            <button class="toggle-btn active" onclick="setScenario('logan', this)">Logan as Engineer</button>
+            <button class="toggle-btn" onclick="setScenario('engineer', this)">Contract Engineer ($5,500/mo)</button>
+        </div>
+
+        <div id="summary-cards" class="summary-row"></div>
+
+        <div id="proforma-table"></div>
+
+        <div class="note" id="scenario-note"></div>
+
+        <footer>
+            <p>RISE &middot; AI Automation Student Enterprise &middot; Pro Forma as of February 2026</p>
+            <p style="margin-top: 0.25rem;"><a href="index.html" style="color: var(--accent-light); text-decoration: none;">View detailed projections &rarr;</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // === DATA MODEL ===
+        // Months: Apr 2026 through Jun 2027 (15 months)
+        const months = [
+            'Apr 26', 'May 26', 'Jun 26', 'Jul 26',
+            'Aug 26', 'Sep 26', 'Oct 26', 'Nov 26', 'Dec 26',
+            'Jan 27', 'Feb 27', 'Mar 27', 'Apr 27', 'May 27', 'Jun 27'
+        ];
+
+        // Client ramp (base case: 9 clients by steady state)
+        // Sales start April, 6-week cycle = first close mid-May
+        // Operations start August
+        // Ramp: clients coming online each month of operations
+        const clientRamp = [
+            0, 0, 0, 0,   // Apr-Jul: pre-revenue (sales happening, no operations)
+            2, 3, 5, 6, 7, // Aug-Dec: ramp up
+            8, 9, 9, 9, 9, 9  // Jan-Jun: steady state
+        ];
+
+        const ratePerClient = 2500;
+
+        // Costs by month
+        // Engineer: hired July for Aug start (prep month), through Jun
+        // Claude Code: $20/mo × 15 students, Aug-May (school year)
+        // Stipends: $500/student/semester. Fall semester Aug, Spring semester Jan
+        // Misc/Insurance: $200/mo during operations
+
+        function buildScenario(type) {
+            const rows = [];
+            let cumRevenue = 0;
+            let cumCosts = 0;
+
+            for (let i = 0; i < months.length; i++) {
+                const m = {};
+                m.month = months[i];
+                m.clients = clientRamp[i];
+                m.revenue = m.clients * ratePerClient;
+
+                // Engineer cost
+                if (type === 'engineer') {
+                    // Engineer starts July (index 3) for prep, through Jun (index 14)
+                    m.engineer = (i >= 3) ? 5500 : 0;
+                } else {
+                    m.engineer = 0;
+                }
+
+                // Claude Code: school year Aug (4) through May (13)
+                m.claudeCode = (i >= 4 && i <= 13) ? 300 : 0;
+
+                // Student stipends: $7,500 in Aug (fall semester), $7,500 in Jan (spring semester)
+                m.stipends = 0;
+                if (i === 4) m.stipends = 7500;  // Aug - fall semester
+                if (i === 9) m.stipends = 7500;  // Jan - spring semester
+
+                // Misc (operations months only, Aug onward)
+                m.misc = (i >= 4) ? 200 : 0;
+
+                m.totalCosts = m.engineer + m.claudeCode + m.stipends + m.misc;
+                m.netIncome = m.revenue - m.totalCosts;
+
+                cumRevenue += m.revenue;
+                cumCosts += m.totalCosts;
+                m.cumRevenue = cumRevenue;
+                m.cumNetIncome = cumRevenue - cumCosts;
+
+                rows.push(m);
+            }
+
+            return rows;
+        }
+
+        function fmt(n) {
+            if (n === 0) return '—';
+            const prefix = n < 0 ? '-$' : '$';
+            return prefix + Math.abs(n).toLocaleString('en-US');
+        }
+
+        function cls(n) {
+            if (n > 0) return 'positive';
+            if (n < 0) return 'negative';
+            return 'zero';
+        }
+
+        let currentScenario = 'logan';
+
+        function setScenario(key, btn) {
+            currentScenario = key;
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        }
+
+        function render() {
+            const data = buildScenario(currentScenario);
+            const last = data[data.length - 1];
+            const totalRev = last.cumRevenue;
+            const totalCosts = data.reduce((s, r) => s + r.totalCosts, 0);
+            const totalNet = totalRev - totalCosts;
+            const breakEvenMonth = data.findIndex(r => r.cumNetIncome > 0);
+
+            // Summary cards
+            document.getElementById('summary-cards').innerHTML = `
+                <div class="summary-card">
+                    <div class="label">Year 1 Revenue</div>
+                    <div class="value positive">${fmt(totalRev)}</div>
+                    <div class="sub">${last.clients} clients at steady state</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Year 1 Costs</div>
+                    <div class="value">${fmt(totalCosts)}</div>
+                    <div class="sub">${currentScenario === 'engineer' ? 'Includes contract engineer' : 'Logan serves as engineer'}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Net Income</div>
+                    <div class="value ${cls(totalNet)}">${fmt(totalNet)}</div>
+                    <div class="sub">${totalNet >= 220000 ? 'Covers $220k grant' : fmt(220000 - totalNet) + ' short of grant'}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Cumulative Breakeven</div>
+                    <div class="value">${breakEvenMonth >= 0 ? data[breakEvenMonth].month : 'N/A'}</div>
+                    <div class="sub">Month net income turns positive</div>
+                </div>
+            `;
+
+            // Table
+            let html = '<div class="table-wrap"><table><thead><tr>';
+            html += '<th></th>';
+            months.forEach(m => html += `<th>${m}</th>`);
+            html += '<th>Total</th></tr></thead><tbody>';
+
+            // Revenue section
+            html += sectionHeader('Revenue');
+            html += row('Active Clients', data.map(r => r.clients), null, true);
+            html += row('Service Revenue', data.map(r => r.revenue), totalRev);
+
+            // Costs section
+            html += sectionHeader('Operating Costs');
+            if (currentScenario === 'engineer') {
+                html += row('Contract Engineer', data.map(r => r.engineer), data.reduce((s, r) => s + r.engineer, 0));
+            }
+            html += row('Claude Code (15 seats)', data.map(r => r.claudeCode), data.reduce((s, r) => s + r.claudeCode, 0));
+            html += row('Student Stipends', data.map(r => r.stipends), data.reduce((s, r) => s + r.stipends, 0));
+            html += row('Misc / Insurance', data.map(r => r.misc), data.reduce((s, r) => s + r.misc, 0));
+            html += subtotalRow('Total Costs', data.map(r => r.totalCosts), totalCosts);
+
+            // Net Income
+            html += sectionHeader('');
+            html += totalRow('Net Income', data.map(r => r.netIncome), totalNet);
+            html += cumulativeRow('Cumulative Net', data.map(r => r.cumNetIncome));
+
+            html += '</tbody></table></div>';
+            document.getElementById('proforma-table').innerHTML = html;
+
+            // Note
+            const noteText = currentScenario === 'logan'
+                ? 'Logan serves as AI engineer for cohort 1. Hire contract engineer once revenue covers 2× their cost (~$110k cumulative).'
+                : 'Contract engineer starts July 2026 for one month of prep before August operations launch.';
+            document.getElementById('scenario-note').textContent = noteText;
+        }
+
+        function sectionHeader(label) {
+            const cols = months.length + 2;
+            return `<tr class="section-header"><td colspan="${cols}">${label}</td></tr>`;
+        }
+
+        function row(label, values, total, isCount) {
+            let html = `<tr><td>${label}</td>`;
+            values.forEach(v => {
+                const display = isCount ? (v || '—') : fmt(v);
+                html += `<td>${display}</td>`;
+            });
+            if (total !== null && total !== undefined) {
+                html += `<td>${isCount ? '' : fmt(total)}</td>`;
+            } else {
+                html += '<td></td>';
+            }
+            return html + '</tr>';
+        }
+
+        function subtotalRow(label, values, total) {
+            let html = `<tr class="subtotal"><td>${label}</td>`;
+            values.forEach(v => html += `<td>${fmt(v)}</td>`);
+            html += `<td>${fmt(total)}</td>`;
+            return html + '</tr>';
+        }
+
+        function totalRow(label, values, total) {
+            let html = `<tr class="total"><td>${label}</td>`;
+            values.forEach(v => html += `<td class="${cls(v)}">${fmt(v)}</td>`);
+            html += `<td class="${cls(total)}">${fmt(total)}</td>`;
+            return html + '</tr>';
+        }
+
+        function cumulativeRow(label, values) {
+            let html = `<tr class="cumulative"><td>${label}</td>`;
+            values.forEach(v => html += `<td class="${cls(v)}">${fmt(v)}</td>`);
+            html += '<td></td>';
+            return html + '</tr>';
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
