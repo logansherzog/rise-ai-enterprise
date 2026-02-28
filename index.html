@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISE AI Automation Enterprise — Revenue Projections</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-2: #232733;
+            --border: #2e3345;
+            --text: #e4e6ed;
+            --text-muted: #8b8fa3;
+            --accent: #6c63ff;
+            --accent-light: #8b84ff;
+            --green: #34d399;
+            --green-dim: rgba(52, 211, 153, 0.15);
+            --yellow: #fbbf24;
+            --yellow-dim: rgba(251, 191, 36, 0.15);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.15);
+            --blue: #60a5fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+
+        header h1 span { color: var(--accent-light); }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 0.25rem 0.85rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        section { margin-bottom: 3.5rem; }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .kpi-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .kpi-value.green { color: var(--green); }
+        .kpi-value.yellow { color: var(--yellow); }
+        .kpi-value.accent { color: var(--accent-light); }
+
+        /* Tables */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        thead th {
+            background: var(--surface-2);
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+
+        .row-strong td {
+            font-weight: 700;
+            background: var(--surface-2);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tag-green { background: var(--green-dim); color: var(--green); }
+        .tag-yellow { background: var(--yellow-dim); color: var(--yellow); }
+        .tag-red { background: var(--red-dim); color: var(--red); }
+
+        /* Chart containers */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-card.full { grid-column: 1 / -1; }
+
+        .chart-card h3 { margin-bottom: 1rem; }
+
+        .chart-card canvas {
+            max-height: 320px;
+        }
+
+        /* Funnel */
+        .funnel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin: 1.5rem 0;
+        }
+
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .funnel-step:hover { transform: scale(1.02); }
+
+        .funnel-step .num {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-right: 0.75rem;
+            min-width: 50px;
+        }
+
+        .funnel-step .label {
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .funnel-step .label small {
+            display: block;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .funnel-arrow {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            margin: 0.25rem 0;
+        }
+
+        /* Scenario toggle */
+        .toggle-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+        .toggle-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Callout */
+        .callout {
+            background: var(--surface);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 12px 12px 0;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .callout p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Comparison bars */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .comparison-card h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+        }
+
+        .bar-label {
+            width: 100px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: var(--surface-2);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            transition: width 0.6s ease;
+        }
+
+        .bar-fill.green { background: var(--green); }
+        .bar-fill.yellow { background: var(--yellow); color: var(--bg); }
+        .bar-fill.red { background: var(--red); }
+
+        .target-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: white;
+            opacity: 0.6;
+            z-index: 2;
+        }
+
+        .target-label-top {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Risk section */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .risk-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .risk-card .risk-title {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .risk-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chart-grid, .comparison, .risk-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 { font-size: 1.75rem; }
+            .kpi-row { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge">RISE &middot; Internal Projections &middot; 2026</div>
+            <h1>AI Automation <span>Student Enterprise</span></h1>
+            <p>Revenue projections for a 15-student cohort delivering AI automation services to South Bend businesses, coded under the Indiana NLPS Business Capstone.</p>
+        </header>
+
+        <!-- KPI Summary -->
+        <section>
+            <div class="kpi-row">
+                <div class="kpi">
+                    <div class="kpi-label">Grant to Replace</div>
+                    <div class="kpi-value yellow">$220k</div>
+                    <div class="kpi-sub">Garatoni Smith Family Foundation</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">Monthly Fee / Client</div>
+                    <div class="kpi-value accent">$2,500</div>
+                    <div class="kpi-sub">$30,000 annual revenue per client</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">Clients to Replace Grant</div>
+                    <div class="kpi-value green">9–11</div>
+                    <div class="kpi-sub">Depending on cost scenario</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">Pilot Cohort</div>
+                    <div class="kpi-value">15</div>
+                    <div class="kpi-sub">Students &middot; $500/semester stipend</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- South Bend Funnel -->
+        <section>
+            <h2>South Bend Sales Funnel</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Conservative estimates: 19% positive reply rate, 30% close rate. Outreach sized so base case covers the grant. South Bend addressable market: ~200–300 businesses with 20+ employees.</p>
+
+            <div class="funnel">
+                <div class="funnel-step" style="width: 95%; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3);">
+                    <span class="num" style="color: var(--accent-light);">210</span>
+                    <span class="label">Outreach Sent<small>South Bend businesses with process complexity</small></span>
+                </div>
+                <div class="funnel-arrow">&#9660;</div>
+                <div class="funnel-step" style="width: 70%; background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.3);">
+                    <span class="num" style="color: var(--blue);">40</span>
+                    <span class="label">Positive Replies<small>19% reply rate from RISE network</small></span>
+                </div>
+                <div class="funnel-arrow">&#9660;</div>
+                <div class="funnel-step" style="width: 50%; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3);">
+                    <span class="num" style="color: var(--yellow);">12</span>
+                    <span class="label">Closed Deals<small>30% close rate on opportunities</small></span>
+                </div>
+                <div class="funnel-arrow">+</div>
+                <div class="funnel-step" style="width: 45%; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);">
+                    <span class="num" style="color: var(--green);">3</span>
+                    <span class="label">Pipeline Conversions<small>Lippert, Storkii, Opstart, Center for Hospice</small></span>
+                </div>
+                <div class="funnel-arrow">&#9660;</div>
+                <div class="funnel-step" style="width: 40%; background: rgba(52,211,153,0.25); border: 2px solid var(--green);">
+                    <span class="num" style="color: var(--green);">15</span>
+                    <span class="label">Total Clients (Strong)<small>$450k annual revenue</small></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two Scenarios -->
+        <section>
+            <h2>Two Operating Scenarios</h2>
+
+            <div class="comparison">
+                <div class="comparison-card">
+                    <h3 style="color: var(--green);">Scenario 1: Logan as Engineer</h3>
+                    <div class="table-wrap" style="border: none; margin-bottom: 0;">
+                        <table>
+                            <tbody>
+                                <tr><td>Student Stipends</td><td style="text-align:right">$15,000</td></tr>
+                                <tr><td>Claude Code (15 seats)</td><td style="text-align:right">$3,000</td></tr>
+                                <tr><td>AI Tools & Software</td><td style="text-align:right">$5,000</td></tr>
+                                <tr><td>Misc</td><td style="text-align:right">$2,000</td></tr>
+                                <tr class="row-strong"><td>Total Annual Costs</td><td style="text-align:right">$25,000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="callout" style="margin-top: 1rem; margin-bottom: 0;">
+                        <div class="callout-title">Hire trigger: 4 clients ($110k revenue)</div>
+                        <p>2&times; the engineer's $55k contract. Hit this, then hire.</p>
+                    </div>
+                </div>
+
+                <div class="comparison-card">
+                    <h3 style="color: var(--yellow);">Scenario 2: Engineer from Day 1</h3>
+                    <div class="table-wrap" style="border: none; margin-bottom: 0;">
+                        <table>
+                            <tbody>
+                                <tr><td>AI Engineer (10 mo)</td><td style="text-align:right">$55,000</td></tr>
+                                <tr><td>Student Stipends</td><td style="text-align:right">$15,000</td></tr>
+                                <tr><td>Claude Code (15 seats)</td><td style="text-align:right">$3,000</td></tr>
+                                <tr><td>AI Tools & Software</td><td style="text-align:right">$5,000</td></tr>
+                                <tr><td>Misc</td><td style="text-align:right">$2,000</td></tr>
+                                <tr class="row-strong"><td>Total Annual Costs</td><td style="text-align:right">$80,000</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Revenue Scenarios -->
+        <section>
+            <h2>Revenue Scenarios</h2>
+
+            <div class="toggle-row">
+                <button class="toggle-btn active" onclick="setScenario('logan')">Logan as Engineer</button>
+                <button class="toggle-btn" onclick="setScenario('engineer')">Engineer from Day 1</button>
+            </div>
+
+            <div id="scenario-table">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="chart-grid" style="margin-top: 1.5rem;">
+                <div class="chart-card full">
+                    <h3>Operating Income vs. $220k Target</h3>
+                    <canvas id="incomeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Bars -->
+        <section>
+            <h2>Grant Replacement Progress</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">How each scenario stacks up against the $220k Garatoni Smith Family Foundation grant.</p>
+
+            <div class="comparison">
+                <div class="comparison-card">
+                    <h3 style="color: var(--green);">Logan as Engineer</h3>
+                    <div class="target-label-top">$220k target &#8594;</div>
+                    <div class="bar-row">
+                        <span class="bar-label">Strong</span>
+                        <div class="bar-track">
+                            <div class="bar-fill green" style="width: 100%;">$425k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-row">
+                        <span class="bar-label">Base</span>
+                        <div class="bar-track">
+                            <div class="bar-fill green" style="width: 57.6%;">$245k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-row">
+                        <span class="bar-label">Conservative</span>
+                        <div class="bar-track">
+                            <div class="bar-fill yellow" style="width: 36.5%;">$155k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card">
+                    <h3 style="color: var(--yellow);">Engineer from Day 1</h3>
+                    <div class="target-label-top">$220k target &#8594;</div>
+                    <div class="bar-row">
+                        <span class="bar-label">Strong</span>
+                        <div class="bar-track">
+                            <div class="bar-fill green" style="width: 87.1%;">$370k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-row">
+                        <span class="bar-label">Base</span>
+                        <div class="bar-track">
+                            <div class="bar-fill yellow" style="width: 44.7%;">$190k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-row">
+                        <span class="bar-label">Conservative</span>
+                        <div class="bar-track">
+                            <div class="bar-fill red" style="width: 23.5%;">$100k</div>
+                            <div class="target-line" style="left: 51.8%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ramp Chart -->
+        <section>
+            <h2>Year 1 Revenue Ramp</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Realistic client onboarding starting fall semester. Clients won't all start month 1.</p>
+
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <h3>Monthly Revenue Ramp (Base Scenario)</h3>
+                    <canvas id="rampChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost Breakdown Donut -->
+        <section>
+            <h2>Cost Breakdown</h2>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Logan as Engineer — $25k/yr</h3>
+                    <canvas id="costDonut1"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Engineer from Day 1 — $80k/yr</h3>
+                    <canvas id="costDonut2"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capacity -->
+        <section>
+            <h2>Student Capacity Model</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">15 students can serve 10–12 concurrent clients. Build phases require 2–3 students; maintenance drops to 1.</p>
+
+            <div class="chart-grid">
+                <div class="chart-card full">
+                    <h3>Students Required per Active Client Portfolio</h3>
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+
+        <footer>
+            <p>RISE &middot; AI Automation Student Enterprise &middot; Projections as of February 2026</p>
+            <p style="margin-top: 0.25rem;">South Bend, Indiana &middot; NLPS Business Capstone (Course 5966)</p>
+        </footer>
+    </div>
+
+    <script>
+        // Chart defaults
+        Chart.defaults.color = '#8b8fa3';
+        Chart.defaults.borderColor = '#2e3345';
+        Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
+
+        const scenarios = {
+            logan: {
+                costs: 25000,
+                label: 'Logan as Engineer',
+                data: [
+                    { name: 'Strong', clients: 15, revenue: 450000, tag: 'green' },
+                    { name: 'Base', clients: 9, revenue: 270000, tag: 'yellow' },
+                    { name: 'Conservative', clients: 6, revenue: 180000, tag: 'red' },
+                ]
+            },
+            engineer: {
+                costs: 80000,
+                label: 'Engineer from Day 1',
+                data: [
+                    { name: 'Strong', clients: 15, revenue: 450000, tag: 'green' },
+                    { name: 'Base', clients: 9, revenue: 270000, tag: 'yellow' },
+                    { name: 'Conservative', clients: 6, revenue: 180000, tag: 'red' },
+                ]
+            }
+        };
+
+        let currentScenario = 'logan';
+        let incomeChart;
+
+        function setScenario(key) {
+            currentScenario = key;
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTable();
+            renderIncomeChart();
+        }
+
+        function fmt(n) {
+            return '$' + n.toLocaleString('en-US');
+        }
+
+        function renderTable() {
+            const s = scenarios[currentScenario];
+            let html = `<div class="table-wrap"><table>
+                <thead><tr>
+                    <th>Scenario</th><th>Clients</th><th>Revenue</th><th>Costs</th><th>Operating Income</th><th>vs. $220k</th>
+                </tr></thead><tbody>`;
+
+            s.data.forEach(row => {
+                const oi = row.revenue - s.costs;
+                const delta = oi - 220000;
+                const deltaStr = delta >= 0 ? '+' + fmt(delta) : '-' + fmt(Math.abs(delta));
+                const tagClass = delta >= 0 ? 'tag-green' : (oi > 150000 ? 'tag-yellow' : 'tag-red');
+                html += `<tr>
+                    <td><span class="tag tag-${row.tag}">${row.name}</span></td>
+                    <td>${row.clients}</td>
+                    <td>${fmt(row.revenue)}</td>
+                    <td>${fmt(s.costs)}</td>
+                    <td><strong>${fmt(oi)}</strong></td>
+                    <td><span class="tag ${tagClass}">${deltaStr}</span></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            document.getElementById('scenario-table').innerHTML = html;
+        }
+
+        function renderIncomeChart() {
+            const s = scenarios[currentScenario];
+            const labels = s.data.map(d => d.name);
+            const incomes = s.data.map(d => d.revenue - s.costs);
+            const colors = ['#34d399', '#fbbf24', '#f87171'];
+
+            if (incomeChart) incomeChart.destroy();
+
+            incomeChart = new Chart(document.getElementById('incomeChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Operating Income',
+                        data: incomes,
+                        backgroundColor: colors,
+                        borderRadius: 8,
+                        barThickness: 60,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => fmt(ctx.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 400000,
+                            ticks: { callback: v => fmt(v) },
+                            grid: { color: '#2e3345' }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                },
+                plugins: [{
+                    id: 'targetLine',
+                    afterDraw(chart) {
+                        const yScale = chart.scales.y;
+                        const y = yScale.getPixelForValue(220000);
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(chart.chartArea.left, y);
+                        ctx.lineTo(chart.chartArea.right, y);
+                        ctx.stroke();
+                        ctx.fillStyle = '#8b8fa3';
+                        ctx.font = '12px -apple-system, system-ui, sans-serif';
+                        ctx.fillText('$220k Target', chart.chartArea.right - 85, y - 8);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        // Ramp chart
+        function renderRampChart() {
+            const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'];
+            const clients = [2, 3, 5, 6, 7, 8, 9, 9, 9];
+            const revenue = clients.map(c => c * 2500);
+            const cumulative = [];
+            let sum = 0;
+            revenue.forEach(r => { sum += r; cumulative.push(sum); });
+
+            new Chart(document.getElementById('rampChart'), {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Cumulative Revenue',
+                            data: cumulative,
+                            borderColor: '#6c63ff',
+                            backgroundColor: 'rgba(108,99,255,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#6c63ff',
+                            yAxisID: 'y1',
+                            order: 0
+                        },
+                        {
+                            label: 'Monthly Revenue',
+                            data: revenue,
+                            backgroundColor: 'rgba(52,211,153,0.6)',
+                            borderRadius: 6,
+                            yAxisID: 'y',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: v => fmt(v) },
+                            grid: { color: '#2e3345' },
+                            title: { display: true, text: 'Monthly', color: '#8b8fa3' }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            ticks: { callback: v => fmt(v) },
+                            grid: { display: false },
+                            title: { display: true, text: 'Cumulative', color: '#8b8fa3' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Cost donuts
+        function renderCostDonuts() {
+            const donutOpts = (labels, data, colors) => ({
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+                        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('costDonut1'),
+                donutOpts(
+                    ['Stipends', 'Claude Code', 'AI Tools', 'Misc'],
+                    [15000, 3000, 5000, 2000],
+                    ['#6c63ff', '#60a5fa', '#34d399', '#8b8fa3']
+                )
+            );
+
+            new Chart(document.getElementById('costDonut2'),
+                donutOpts(
+                    ['AI Engineer', 'Stipends', 'Claude Code', 'AI Tools', 'Misc'],
+                    [55000, 15000, 3000, 5000, 2000],
+                    ['#fbbf24', '#6c63ff', '#60a5fa', '#34d399', '#8b8fa3']
+                )
+            );
+        }
+
+        // Capacity chart
+        function renderCapacityChart() {
+            const clients = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+            const buildStudents = clients.map(c => Math.min(c * 2, 15));
+            const maintenanceStudents = clients.map(c => c);
+            const blended = clients.map(c => {
+                const inBuild = Math.min(3, c);
+                const inMaint = Math.max(0, c - 3);
+                return inBuild * 2.5 + inMaint * 1;
+            });
+
+            new Chart(document.getElementById('capacityChart'), {
+                type: 'line',
+                data: {
+                    labels: clients.map(c => c + ' clients'),
+                    datasets: [
+                        {
+                            label: 'All in Build Phase',
+                            data: buildStudents,
+                            borderColor: '#f87171',
+                            backgroundColor: 'rgba(248,113,113,0.1)',
+                            tension: 0.3,
+                            borderDash: [5, 5],
+                        },
+                        {
+                            label: 'Blended (3 building, rest maintenance)',
+                            data: blended,
+                            borderColor: '#6c63ff',
+                            backgroundColor: 'rgba(108,99,255,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                        },
+                        {
+                            label: 'All in Maintenance',
+                            data: maintenanceStudents,
+                            borderColor: '#34d399',
+                            backgroundColor: 'rgba(52,211,153,0.1)',
+                            tension: 0.3,
+                            borderDash: [5, 5],
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: { label: ctx => ctx.dataset.label + ': ' + Math.round(ctx.parsed.y) + ' students' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            ticks: { callback: v => v + ' students' },
+                            grid: { color: '#2e3345' }
+                        },
+                        x: { grid: { display: false } }
+                    },
+                },
+                plugins: [{
+                    id: 'capacityLine',
+                    afterDraw(chart) {
+                        const yScale = chart.scales.y;
+                        const y = yScale.getPixelForValue(15);
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        ctx.strokeStyle = '#fbbf24';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(chart.chartArea.left, y);
+                        ctx.lineTo(chart.chartArea.right, y);
+                        ctx.stroke();
+                        ctx.fillStyle = '#fbbf24';
+                        ctx.font = '12px -apple-system, system-ui, sans-serif';
+                        ctx.fillText('15 Student Capacity', chart.chartArea.right - 130, y - 8);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        // Init
+        renderTable();
+        renderIncomeChart();
+        renderRampChart();
+        renderCostDonuts();
+        renderCapacityChart();
+    </script>
+</body>
+</html>
