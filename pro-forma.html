@@ -270,13 +270,19 @@
             <div class="item"><strong>15 students</strong> &middot; $500/semester stipend</div>
             <div class="item"><strong>6-week</strong> sales cycle (sales start April)</div>
             <div class="item"><strong>Operations begin</strong> August 2026</div>
-            <div class="item"><strong>9 clients</strong> base case (see ramp below)</div>
             <div class="item"><strong>$220k</strong> grant replacement target</div>
         </div>
 
-        <div class="toggle-row">
-            <button class="toggle-btn active" onclick="setScenario('logan', this)">Logan as Engineer</button>
-            <button class="toggle-btn" onclick="setScenario('engineer', this)">Contract Engineer ($5,500/mo)</button>
+        <div class="toggle-row" id="revenue-toggle">
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">Revenue</span>
+            <button class="toggle-btn active" onclick="setRevenue('base', this)">Base Case &middot; 9 Clients</button>
+            <button class="toggle-btn" onclick="setRevenue('grant', this)">Grant Coverage &middot; 12 Clients</button>
+        </div>
+
+        <div class="toggle-row" id="cost-toggle">
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">Staffing</span>
+            <button class="toggle-btn active" onclick="setCost('logan', this)">Logan as Engineer</button>
+            <button class="toggle-btn" onclick="setCost('engineer', this)">Contract Engineer ($5,500/mo)</button>
         </div>
 
         <div id="summary-cards" class="summary-row"></div>
@@ -293,32 +299,30 @@
 
     <script>
         // === DATA MODEL ===
-        // Months: Apr 2026 through Jun 2027 (15 months)
         const months = [
             'Apr 26', 'May 26', 'Jun 26', 'Jul 26',
             'Aug 26', 'Sep 26', 'Oct 26', 'Nov 26', 'Dec 26',
             'Jan 27', 'Feb 27', 'Mar 27', 'Apr 27', 'May 27', 'Jun 27'
         ];
 
-        // Client ramp (base case: 9 clients by steady state)
-        // Sales start April, 6-week cycle = first close mid-May
-        // Operations start August
-        // Ramp: clients coming online each month of operations
-        const clientRamp = [
-            0, 0, 0, 0,   // Apr-Jul: pre-revenue (sales happening, no operations)
-            2, 3, 5, 6, 7, // Aug-Dec: ramp up
-            8, 9, 9, 9, 9, 9  // Jan-Jun: steady state
-        ];
+        // Two client ramps
+        const ramps = {
+            base: [
+                0, 0, 0, 0,        // Apr-Jul: pre-revenue
+                2, 3, 5, 6, 7,     // Aug-Dec: ramp
+                8, 9, 9, 9, 9, 9   // Jan-Jun: steady state at 9
+            ],
+            grant: [
+                0, 0, 0, 0,            // Apr-Jul: pre-revenue
+                3, 5, 7, 9, 10,        // Aug-Dec: faster ramp
+                11, 12, 12, 12, 12, 12 // Jan-Jun: steady state at 12
+            ]
+        };
 
         const ratePerClient = 2500;
 
-        // Costs by month
-        // Engineer: hired July for Aug start (prep month), through Jun
-        // Claude Code: $20/mo × 15 students, Aug-May (school year)
-        // Stipends: $500/student/semester. Fall semester Aug, Spring semester Jan
-        // Misc/Insurance: $200/mo during operations
-
-        function buildScenario(type) {
+        function buildScenario(revenueKey, costKey) {
+            const clientRamp = ramps[revenueKey];
             const rows = [];
             let cumRevenue = 0;
             let cumCosts = 0;
@@ -330,8 +334,7 @@
                 m.revenue = m.clients * ratePerClient;
 
                 // Engineer cost
-                if (type === 'engineer') {
-                    // Engineer starts July (index 3) for prep, through Jun (index 14)
+                if (costKey === 'engineer') {
                     m.engineer = (i >= 3) ? 5500 : 0;
                 } else {
                     m.engineer = 0;
@@ -340,12 +343,12 @@
                 // Claude Code: school year Aug (4) through May (13)
                 m.claudeCode = (i >= 4 && i <= 13) ? 300 : 0;
 
-                // Student stipends: $7,500 in Aug (fall semester), $7,500 in Jan (spring semester)
+                // Student stipends: $7,500 in Aug (fall), $7,500 in Jan (spring)
                 m.stipends = 0;
-                if (i === 4) m.stipends = 7500;  // Aug - fall semester
-                if (i === 9) m.stipends = 7500;  // Jan - spring semester
+                if (i === 4) m.stipends = 7500;
+                if (i === 9) m.stipends = 7500;
 
-                // Misc (operations months only, Aug onward)
+                // Misc (operations months, Aug onward)
                 m.misc = (i >= 4) ? 200 : 0;
 
                 m.totalCosts = m.engineer + m.claudeCode + m.stipends + m.misc;
@@ -374,39 +377,53 @@
             return 'zero';
         }
 
-        let currentScenario = 'logan';
+        let currentRevenue = 'base';
+        let currentCost = 'logan';
 
-        function setScenario(key, btn) {
-            currentScenario = key;
-            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        function setRevenue(key, btn) {
+            currentRevenue = key;
+            document.querySelectorAll('#revenue-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        }
+
+        function setCost(key, btn) {
+            currentCost = key;
+            document.querySelectorAll('#cost-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             render();
         }
 
         function render() {
-            const data = buildScenario(currentScenario);
+            const data = buildScenario(currentRevenue, currentCost);
             const last = data[data.length - 1];
             const totalRev = last.cumRevenue;
             const totalCosts = data.reduce((s, r) => s + r.totalCosts, 0);
             const totalNet = totalRev - totalCosts;
             const breakEvenMonth = data.findIndex(r => r.cumNetIncome > 0);
+            const steadyClients = last.clients;
+
+            const costLabel = currentCost === 'engineer' ? 'Includes contract engineer' : 'Logan serves as engineer';
+            const grantStatus = totalNet >= 220000
+                ? '<span class="positive">Covers $220k grant</span>'
+                : fmt(220000 - totalNet) + ' short of grant';
 
             // Summary cards
             document.getElementById('summary-cards').innerHTML = `
                 <div class="summary-card">
                     <div class="label">Year 1 Revenue</div>
                     <div class="value positive">${fmt(totalRev)}</div>
-                    <div class="sub">${last.clients} clients at steady state</div>
+                    <div class="sub">${steadyClients} clients at steady state</div>
                 </div>
                 <div class="summary-card">
                     <div class="label">Year 1 Costs</div>
                     <div class="value">${fmt(totalCosts)}</div>
-                    <div class="sub">${currentScenario === 'engineer' ? 'Includes contract engineer' : 'Logan serves as engineer'}</div>
+                    <div class="sub">${costLabel}</div>
                 </div>
                 <div class="summary-card">
                     <div class="label">Net Income</div>
                     <div class="value ${cls(totalNet)}">${fmt(totalNet)}</div>
-                    <div class="sub">${totalNet >= 220000 ? 'Covers $220k grant' : fmt(220000 - totalNet) + ' short of grant'}</div>
+                    <div class="sub">${grantStatus}</div>
                 </div>
                 <div class="summary-card">
                     <div class="label">Cumulative Breakeven</div>
@@ -428,7 +445,7 @@
 
             // Costs section
             html += sectionHeader('Operating Costs');
-            if (currentScenario === 'engineer') {
+            if (currentCost === 'engineer') {
                 html += row('Contract Engineer', data.map(r => r.engineer), data.reduce((s, r) => s + r.engineer, 0));
             }
             html += row('Claude Code (15 seats)', data.map(r => r.claudeCode), data.reduce((s, r) => s + r.claudeCode, 0));
@@ -445,9 +462,15 @@
             document.getElementById('proforma-table').innerHTML = html;
 
             // Note
-            const noteText = currentScenario === 'logan'
-                ? 'Logan serves as AI engineer for cohort 1. Hire contract engineer once revenue covers 2× their cost (~$110k cumulative).'
-                : 'Contract engineer starts July 2026 for one month of prep before August operations launch.';
+            let noteText = '';
+            if (currentCost === 'logan') {
+                noteText = 'Logan serves as AI engineer for cohort 1. Hire contract engineer once revenue covers 2× their cost (~$110k cumulative).';
+            } else {
+                noteText = 'Contract engineer starts July 2026 for one month of prep before August operations launch.';
+            }
+            if (currentRevenue === 'grant') {
+                noteText += ' Grant coverage scenario requires 12 clients at steady state — increased outreach and faster ramp.';
+            }
             document.getElementById('scenario-note').textContent = noteText;
         }
 
