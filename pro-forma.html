@@ -266,17 +266,17 @@
 
         <div class="assumptions">
             <h3>Key Assumptions</h3>
-            <div class="item"><strong>$2,500/mo</strong> per client</div>
+            <div class="item"><strong>$2,500/mo</strong> per client, or <strong>$20,000</strong> contract (two installments)</div>
             <div class="item"><strong>15 students</strong> &middot; $500/semester stipend</div>
             <div class="item"><strong>6-week</strong> sales cycle (sales start April)</div>
             <div class="item"><strong>Operations begin</strong> August 2026</div>
-            <div class="item"><strong>$220k</strong> grant replacement target</div>
+            <div class="item"><strong>Year 1 goal:</strong> reduce GFO grant ask from $220k to <strong>$150k</strong></div>
         </div>
 
         <div class="toggle-row" id="revenue-toggle">
             <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); align-self: center; margin-right: 0.25rem;">Revenue</span>
             <button class="toggle-btn active" onclick="setRevenue('base', this)">Base Case &middot; 9 Clients</button>
-            <button class="toggle-btn" onclick="setRevenue('grant', this)">Grant Coverage &middot; 12 Clients</button>
+            <button class="toggle-btn" onclick="setRevenue('grant', this)">Stretch &middot; 12 Clients</button>
         </div>
 
         <div class="toggle-row" id="cost-toggle">
@@ -404,9 +404,10 @@
             const steadyClients = last.clients;
 
             const costLabel = currentCost === 'engineer' ? 'Includes contract engineer' : 'Logan serves as engineer';
-            const grantStatus = totalNet >= 220000
-                ? '<span class="positive">Covers $220k grant</span>'
-                : fmt(220000 - totalNet) + ' short of grant';
+            const yr1Target = 70000; // reduce grant ask by $70k ($220k → $150k)
+            const grantStatus = totalNet >= yr1Target
+                ? '<span class="positive">Covers Year 1 goal</span> &middot; reduces grant to $' + Math.max(0, Math.round((220000 - totalNet) / 1000)) + 'k'
+                : fmt(yr1Target - totalNet) + ' short of Year 1 goal';
 
             // Summary cards
             document.getElementById('summary-cards').innerHTML = `
@@ -469,7 +470,7 @@
                 noteText = 'Contract engineer starts July 2026 for one month of prep before August operations launch.';
             }
             if (currentRevenue === 'grant') {
-                noteText += ' Grant coverage scenario requires 12 clients at steady state — increased outreach and faster ramp.';
+                noteText += ' Stretch scenario targets 12 clients at steady state — increased outreach and faster ramp.';
             }
             document.getElementById('scenario-note').textContent = noteText;
         }
